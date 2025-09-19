@@ -25,6 +25,76 @@ Krait-Ecosystem employs a hybrid architecture combining Rust for performance-cri
 
 ![High-Level Architecture](./docs/IMAGES/architecture-diagram.png)
 
+```mermaid
+flowchart TD
+    A[User Request<br/>Web / API / CLI] --> B
+
+    subgraph B [Zero-Trust Security Gateway]
+        direction LR
+        B1[🔐 Authentication] --> B2[🛡️ RBAC Authorization] --> B3[🔒 Post-Quantum Encryption]
+    end
+
+    B --> C
+
+    C{MetaOvermind<br/><b>Architect & Orchestrator</b>} -.-|Monitors| H
+
+    C --> D_layer
+    C --> E_layer
+    C --> F_layer
+
+    D_layer[[Execution Layer]] --> D
+    E_layer[[Analysis Layer]] --> E
+    F_layer[[Business Layer]] --> F
+
+    subgraph D [Execution Agents]
+        D1[SecureCodeAgent]
+        D2[TestForgeSentinel]
+        D3[InfraValidator]
+    end
+
+    subgraph E [Analytical Agents]
+        E1[IdeaForgeMaster]
+        E2[UniversalAnalyzer]
+        E3[QuantumOracle]
+    end
+
+    subgraph F [Business Agents]
+        F1[BizQuantumIntegrator]
+        F2[EthicsOracle]
+        F3[ContextArchitect]
+    end
+
+    D & E & F --> G[System State Database<br/>DNA & Snapshots]
+    
+    G --> H{Verification &<br/>Response Synthesis}
+    
+    H --> I[Verified<br/>Response / Artifact]
+    
+    I --> A
+
+    %% Styling
+    classDef user fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
+    classDef security fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#000
+    classDef orchestrator fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px,color:#000
+    classDef execution fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef analysis fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,color:#000
+    classDef business fill:#e0f2f1,stroke:#00897b,stroke-width:2px,color:#000
+    classDef state fill:#eeeeee,stroke:#424242,stroke-width:2px,color:#000
+    classDef verification fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    classDef layerLabel fill:transparent,stroke:transparent,font-style:italic,font-size:12px,color:#666
+    
+    class A,I user
+    class B,B1,B2,B3 security
+    class C orchestrator
+    class D,D1,D2,D3 execution
+    class E,E1,E2,E3 analysis
+    class F,F1,F2,F3 business
+    class G state
+    class H verification
+    class D_layer,E_layer,F_layer layerLabel
+```
+
+
 **Core Components:**
 *   **Cognitive Runtime:** Rust-based orchestrator with a quantum-resistant secure enclave.
 *   **Message Bus:** Sharded, priority-based bus with back-pressure management.
