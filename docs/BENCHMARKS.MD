@@ -200,5 +200,5 @@ taskset -c 0-7 cargo bench --bench crypto_bench
 
 Benchmark data available under CC-BY-4.0. Implementation details and specific optimizations may be subject to additional restrictions.
 
-*Last Updated: $(date)*  
+
 *Test Environment: Ryzen 5700x / Ubuntu 24.10 / Rust 1.89
