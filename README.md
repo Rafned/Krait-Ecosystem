@@ -126,6 +126,8 @@ This repository serves as a reference architecture. To implement similar systems
 2.  Examine the agent interaction patterns in `/specs`
 3.  Use the benchmark results as performance targets for your implementation
 
+Contact: denfar28@gmail.com
+
 ## 📄 License
 
 Architectural documentation is licensed under CC-BY-4.0. All implementation rights reserved.
