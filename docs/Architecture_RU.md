@@ -24,44 +24,148 @@ Krait — это не монолитный генератор кода, а ра�
 Система разделена на два слоя, взаимодействующих через `PythonProcessManager`, gRPC и JSON-сериализованные задачи.
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {
+  'lineColor': '#64748B',
+  'primaryColor': '#3B82F6',
+  'primaryTextColor': '#FFFFFF',
+  'primaryBorderColor': '#2563EB',
+  'secondaryColor': '#0D9488',
+  'tertiaryColor': '#0F172A',
+  'fontFamily': 'system-ui, -apple-system, sans-serif',
+  'fontSize': '14px',
+  'edgeLabelBackground': '#F8FAFC'
+}}}%%
+
 flowchart TD
-    User[Пользователь / CLI / gRPC] --> Dispatcher
-    
+    %% ===== ВНЕШНИЙ КОНТЕКСТ (Стадион) =====
+    User(["Пользователь / CLI / gRPC"]) --> Dispatcher
+
+    %% ===== RUST CORE (Синий) =====
     subgraph RustCore ["Rust Core (krait-core)"]
-        Dispatcher[gRPC Server / CLI / JSONL Dispatcher]
-        Bus[Message Bus<br/>16 шардов, 4 приоритета]
-        Runtime[CognitiveRuntime<br/>DI + Lifecycle + Self-Healing]
-        TQ[TaskQueue<br/>sled, priority index, retries]
-        BE[BackgroundExecutor<br/>idle detection, rate limiting]
-        Sec[Security Layer<br/>RBAC + PQ Crypto + Validation]
-        Rep[Replication<br/>DNA + Snapshots + Knowledge Graph]
+        %% I/O Границы (Параллелограммы)
+        Dispatcher[/"gRPC Server / CLI / JSONL Dispatcher"\]
+        BE[/"BackgroundExecutor<br/>idle detection, rate limiting"\]
+        Rep[/"Replication<br/>DNA + Snapshots + Graph"\]
+        
+        %% Инфраструктурные слои (Шестиугольники)
+        Bus{{"Message Bus<br/>16 шардов, 4 приоритета<br/>Backpressure, DLQ, TTL"}}
+        Sec{{"Security Layer<br/>RBAC + PQ Crypto + Validation"}}
+        
+        %% Внутренние процессы (Прямоугольники)
+        Runtime["CognitiveRuntime<br/>DI + Lifecycle + Self-Healing"]
+        TQ["TaskQueue<br/>sled, priority index, retries"]
     end
-    
+
+    %% ===== PYTHON COGNITIVE LAYER (Бирюзовый) =====
+    subgraph PyLayer ["Python Cognitive Layer"]
+        %% I/O Границы
+        PyMgr[/"PythonProcessManager"\]
+        
+        %% Точка старта графа (Стадион)
+        Graph(["GraphExecutor<br/>DAG Runner"])
+        
+        %% Инфраструктурный слой (Шестиугольник)
+        LLM{{"LLM Infrastructure<br/>Registry / VRAM Pool"}}
+        
+        %% Агенты (Прямоугольники)
+        PyMeta["MetaOvermind<br/>L3 Orchestrator"]
+        Arch["ArchitectAgent<br/>L2 Architecture"]
+
+        subgraph Generation ["Генерация кода"]
+            MC["MicroCoder<br/>L0 Code Gen"]
+            CRA["CodeRepairAgent<br/>L0 Repair"]
+        end
+
+        subgraph Validation ["Валидация"]
+            VR["ValidatorSwarm<br/>L2 Validation"]
+            CA["ContextArchitect<br/>L3 Integrity"]
+        end
+
+        subgraph Security ["Безопасность"]
+            SC["SecureCodeAgent<br/>L2 Security"]
+        end
+    end
+
+    %% === ПОТОКИ ДАННЫХ ===
     Dispatcher --> Bus
-    Runtime --> Bus
+    Bus --> Sec
+    Sec --> Runtime
     Runtime --> TQ
     Runtime --> BE
-    Bus --> Sec
     Rep --> Runtime
-    
-    Bus --> PyMgr[PythonProcessManager]
-    
-    subgraph PyLayer ["Python Cognitive Layer"]
-        PyMgr --> PyMeta[MetaOvermind<br/>L3 Orchestrator]
-        PyMeta --> Arch[ArchitectAgent<br/>L2 Architecture]
-        PyMeta --> Graph[GraphExecutor<br/>DAG Runner]
-        Graph --> MC[MicroCoder<br/>L0 Code Gen]
-        Graph --> VR[ValidatorSwarm<br/>L2 Validation]
-        Graph --> SC[SecureCodeAgent<br/>L2 Security]
-        Graph --> CA[ContextArchitect<br/>L3 Integrity]
-        MC --> CRA[CodeRepairAgent<br/>L0 Repair]
-        PyMeta --> LLM[LLM Infrastructure<br/>Registry / VRAM Pool]
-    end
-    
+    Runtime --> Bus
+
+    Bus ==>|"gRPC + JSONL"| PyMgr
+
+    PyMgr --> PyMeta
+    PyMeta --> Arch
+    PyMeta --> Graph
+    PyMeta --> LLM
     Arch --> Graph
+
+    Graph --> MC
+    Graph --> VR
+    Graph --> SC
+    Graph --> CA
+    
+    %% Добавил обратные связи от валидаторов/безопасности
+    VR --> Graph
+    CA --> Graph
+    SC --> Graph
+    
+    MC --> CRA
+    CRA --> Graph
+    
     LLM --> MC
     LLM --> Arch
     LLM --> SC
+
+    %% ==========================================
+    %% ===== ЕДИНЫЙ ДИЗАЙН-СТИЛЬ (CSS) ==========
+    %% ==========================================
+
+    %% --- ВНЕШНИЙ КОНТЕКСТ ---
+    style User fill:#F1F5F9,stroke:#94A3B8,stroke-width:1.5px,color:#475569
+
+    %% --- КОНТЕЙНЕРЫ СЛОЕВ ---
+    style RustCore fill:#EFF6FF,stroke:#3B82F6,stroke-width:2px,color:#0F172A
+    style PyLayer fill:#F0FDFA,stroke:#0D9488,stroke-width:2px,color:#0F172A
+    style Generation fill:#CCFBF1,stroke:#99F6E4,stroke-width:1px,color:#0F172A
+    style Validation fill:#CCFBF1,stroke:#99F6E4,stroke-width:1px,color:#0F172A
+    style Security fill:#CCFBF1,stroke:#99F6E4,stroke-width:1px,color:#0F172A
+
+    %% --- СИНЕЕ (Rust Core) ---
+    %% Шестиугольники (Инфраструктура)
+    style Bus fill:#1D4ED8,stroke:#1E40AF,stroke-width:2px,color:#FFFFFF
+    style Sec fill:#1D4ED8,stroke:#1E40AF,stroke-width:2px,color:#FFFFFF
+    %% Параллелограммы (I/O)
+    style Dispatcher fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
+    style BE fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
+    style Rep fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
+    %% Прямоугольники (Процессы)
+    style Runtime fill:#3B82F6,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
+    style TQ fill:#3B82F6,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
+
+    %% --- БИРЮЗОВОЕ (Python Layer) ---
+    %% Стадионы (Главные точки потока)
+    style Graph fill:#0F766E,stroke:#115E59,stroke-width:2.5px,color:#FFFFFF
+    %% Шестиугольники (Инфраструктура)
+    style LLM fill:#0F766E,stroke:#115E59,stroke-width:2px,color:#FFFFFF
+    %% Параллелограммы (I/O)
+    style PyMgr fill:#0D9488,stroke:#0F766E,stroke-width:2px,color:#FFFFFF
+    %% Прямоугольники (Агенты)
+    style PyMeta fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+    style Arch fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+    style MC fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+    style VR fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+    style SC fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+    style CA fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+    style CRA fill:#2DD4BF,stroke:#14B8A6,stroke-width:2px,color:#115E59
+
+    %% --- ЛИНИИ СВЯЗИ ---
+    linkStyle default stroke:#64748B,stroke-width:1.5px
+    %% Выделение системной границы (Rust -> Python) — индекс 8
+    linkStyle 8 stroke:#3B82F6,stroke-width:2.5px
 ```
 
 **Принцип разделения:**
@@ -75,40 +179,84 @@ flowchart TD
 Агенты в системе организованы в три уровня по принципу ответственности и близости к LLM:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {
+  'lineColor': '#64748B',
+  'primaryColor': '#3B82F6',
+  'primaryTextColor': '#FFFFFF',
+  'primaryBorderColor': '#2563EB',
+  'secondaryColor': '#0D9488',
+  'tertiaryColor': '#0F172A',
+  'fontFamily': 'system-ui, -apple-system, sans-serif',
+  'fontSize': '14px',
+  'edgeLabelBackground': '#F8FAFC'
+}}}%%
+
 flowchart TD
+    %% ===== L3 УРОВЕНЬ (Синий - Оркестрация) =====
     subgraph L3 ["L3: Оркестрация и стратегия"]
-        MO[MetaOvermind<br/>Гибридный оркестратор]
-        CA_L3[ContextArchitect<br/>Страж целостности]
-        BQI[BizQuantumIntegrator<br/>Бизнес-аналитика]
-        QO[QuantumOracle<br/>Квантовые алгоритмы]
+        MO["MetaOvermind<br/>Гибридный оркестратор"]
+        CA_L3["ContextArchitect<br/>Страж целостности"]
+        BQI["BizQuantumIntegrator<br/>Бизнес-аналитика"]
+        QO["QuantumOracle<br/>Квантовые алгоритмы"]
     end
 
+    %% ===== L2 УРОВЕНЬ (Бирюзовый - Спец. агенты) =====
     subgraph L2 ["L2: Специализированные агенты"]
-        AA[ArchitectAgent<br/>Архитектурный дизайн]
-        SCA[SecureCodeAgent<br/>Гибридный аудит]
-        IFM[IdeaForgeMaster<br/>Генератор идей]
-        UA[UniversalAnalyzer<br/>Аналогии и метафоры]
-        VS[ValidatorSwarm<br/>Многоуровневая валидация]
+        AA["ArchitectAgent<br/>Архитектурный дизайн"]
+        SCA["SecureCodeAgent<br/>Гибридный аудит"]
+        IFM["IdeaForgeMaster<br/>Генератор идей"]
+        UA["UniversalAnalyzer<br/>Аналогии и метафоры"]
+        VS["ValidatorSwarm<br/>Многоуровневая валидация"]
     end
 
+    %% ===== L0 УРОВЕНЬ (Серый - Исполнители) =====
     subgraph L0 ["L0: Исполнители"]
-        MC_L0[MicroCoder<br/>Генератор кода]
-        CRA_L0[CodeRepairAgent<br/>Детерминированный ремонт]
-        GE[GraphExecutor<br/>DAG-раннер]
+        MC_L0["MicroCoder<br/>Генератор кода"]
+        CRA_L0["CodeRepairAgent<br/>Детерминированный ремонт"]
+        GE["GraphExecutor<br/>DAG-раннер"]
     end
 
-    MO -->|планирует| AA
-    MO -->|делегирует| GE
-    GE -->|запускает| MC_L0
-    GE -->|запускает| VS
-    GE -->|запускает| CA_L3
-    GE -->|запускает| SCA
-    MC_L0 -->|результат| CRA_L0
-    CRA_L0 -->|исправленный код| VS
+    %% ===== ОСНОВНЫЕ ПОТОКИ =====
+    MO -->|"планирует"| AA
+    MO -->|"делегирует"| GE
     
-    AA -.->|использует| IFM
-    SCA -.->|использует| UA
-    QO -.->|используется| BQI
+    GE -->|"запускает"| MC_L0
+    GE -->|"запускает"| VS
+    GE -->|"запускает"| CA_L3
+    GE -->|"запускает"| SCA
+    
+    MC_L0 -->|"результат"| CRA_L0
+    CRA_L0 -->|"исправленный код"| VS
+
+    %% ===== ВСПОМОГАТЕЛЬНЫЕ ПОТОКИ =====
+    AA -.->|"использует"| IFM
+    SCA -.->|"использует"| UA
+    QO -.->|"используется"| BQI
+
+    %% ===== ЕДИНЫЙ СТИЛЬ (Синий) =====
+    style L3 fill:#F8FAFC,stroke:#3B82F6,stroke-width:2px,color:#0F172A
+    style MO fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
+    style CA_L3 fill:#3B82F6,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
+    style BQI fill:#3B82F6,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
+    style QO fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
+
+    %% ===== ЕДИНЫЙ СТИЛЬ (Бирюзовый) =====
+    style L2 fill:#F0FDFA,stroke:#0D9488,stroke-width:2px,color:#0F172A
+    style AA fill:#0D9488,stroke:#0F766E,stroke-width:2px,color:#FFFFFF
+    style SCA fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+    style IFM fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+    style UA fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+    style VS fill:#0D9488,stroke:#0F766E,stroke-width:2px,color:#FFFFFF
+
+    %% ===== ЕДИНЫЙ СТИЛЬ (Серый/Slate) =====
+    style L0 fill:#F8FAFC,stroke:#64748B,stroke-width:2px,color:#0F172A
+    style MC_L0 fill:#475569,stroke:#334155,stroke-width:2px,color:#FFFFFF
+    style CRA_L0 fill:#64748B,stroke:#475569,stroke-width:2px,color:#FFFFFF
+    style GE fill:#475569,stroke:#334155,stroke-width:2px,color:#FFFFFF
+
+    %% ===== ЛИНИИ =====
+    linkStyle default stroke:#64748B,stroke-width:1.5px
+    linkStyle 7,8,9 stroke:#94A3B8,stroke-width:1.5px,stroke-dasharray:5 4
 ```
 
 **Принцип взаимодействия:** агенты общаются через шину сообщений (Rust), напрямую не вызывая друг друга. `MetaOvermind` и `GraphExecutor` — единственные компоненты, которые координируют выполнение; остальные агенты — stateless-обработчики, получающие контекст через параметры вызова.
@@ -149,7 +297,7 @@ DI-контейнер и менеджер жизненного цикла:
 
 ### 4.4. MetaOvermind (гибридный агент)
 
-`MetaOvermind` — **единственный агент, реализованный в двух языках одновременно**:
+`MetaOvermind` — **Гибридный агент, реализованный в двух языках одновременно**:
 
 - **Rust-часть** (модуль `cognitive_runtime`): получает сообщения из шины, управляет correlation ID для асинхронных запросов, взаимодействует с `TaskQueue` и `PythonProcessManager`. Содержит `AgentRegistry` и логику спавна/остановки агентов.
 - **Python-часть** (модуль `metaovermind.py`): выполняет когнитивное планирование — анализирует цель, определяет сложность запроса, вызывает `ArchitectAgent` для архитектурного проектирования или строит линейный fallback, формирует `ExecutionGraph` для `GraphExecutor`.
@@ -249,24 +397,73 @@ Python-слой — это «мозг» системы, отвечающий з�
 Исполнитель DAG:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {
+  'lineColor': '#64748B',
+  'primaryColor': '#3B82F6',
+  'primaryTextColor': '#FFFFFF',
+  'primaryBorderColor': '#2563EB',
+  'secondaryColor': '#0D9488',
+  'tertiaryColor': '#0F172A',
+  'fontFamily': 'system-ui, -apple-system, sans-serif',
+  'fontSize': '14px',
+  'edgeLabelBackground': '#F8FAFC'
+}}}%%
+
 flowchart TD
-    A[Получение ExecutionGraph] --> B[Построить in-degree map]
-    B --> C{Есть узлы с in_degree=0?}
-    C -- Да --> D[Разделить на CPU и LLM]
-    C -- Нет --> Z[Завершить]
-    D --> E[CPU-узлы: asyncio.gather<br/>параллельно]
-    D --> F[LLM-узлы: asyncio.Lock<br/>строго последовательно]
-    E --> G[Собрать результаты]
-    F --> G
-    G --> H{Узел успешен?}
-    H -- Нет --> I[Пометить зависимые узлы skipped]
-    H -- Да --> J[Уменьшить in_degree зависимых]
-    J --> K{У зависимого in_degree=0?}
-    K -- Да --> L[Добавить в ready_queue]
-    K -- Нет --> M[Ждать остальных родителей]
-    I --> C
-    L --> C
-    M --> C
+    Start["Получение ExecutionGraph"] --> BuildMap["Построить in-degree map"]
+    BuildMap --> CheckReady{"Есть узлы с in_degree = 0 ?"}
+    
+    CheckReady -->|Нет| Finish["Завершить"]
+    CheckReady -->|Да| SplitType["Разделить на CPU и LLM узлы"]
+    
+    SplitType --> CPUNodes["CPU-узлы<br/>asyncio.gather<br/>параллельно"]
+    SplitType --> LLMNodes["LLM-узлы<br/>asyncio.Lock<br/>строго последовательно"]
+    
+    CPUNodes --> Collect["Собрать результаты"]
+    LLMNodes --> Collect
+    
+    Collect --> CheckSuccess{"Узел успешен ?"}
+    
+    CheckSuccess -->|Нет| MarkSkipped["Пометить зависимые узлы<br/>как skipped"]
+    MarkSkipped --> CheckReady
+    
+    CheckSuccess -->|Да| Decrement["Уменьшить in_degree<br/>зависимых узлов"]
+    
+    Decrement --> CheckZero{"У зависимого<br/>in_degree = 0 ?"}
+    
+    CheckZero -->|Да| AddToQueue["Добавить в ready_queue"]
+    AddToQueue --> CheckReady
+    
+    CheckZero -->|Нет| WaitParents["Ждать остальных родителей"]
+    WaitParents --> CheckReady
+
+    %% ===== СИНЕЕ (Точки входа/выхода) =====
+    style Start fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
+    style Finish fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
+
+    %% ===== БИРЮЗОВОЕ (AI и генерация) =====
+    style CPUNodes fill:#0D9488,stroke:#0F766E,stroke-width:2px,color:#FFFFFF
+    style LLMNodes fill:#0D9488,stroke:#0F766E,stroke-width:2px,color:#FFFFFF
+    style Collect fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+
+    %% ===== СЕРОЕ (Механика графов) =====
+    style BuildMap fill:#475569,stroke:#334155,stroke-width:2px,color:#FFFFFF
+    style SplitType fill:#64748B,stroke:#475569,stroke-width:2px,color:#FFFFFF
+    style Decrement fill:#475569,stroke:#334155,stroke-width:2px,color:#FFFFFF
+    style AddToQueue fill:#64748B,stroke:#475569,stroke-width:2px,color:#FFFFFF
+    style WaitParents fill:#64748B,stroke:#475569,stroke-width:2px,color:#FFFFFF
+
+    %% ===== УСЛОВИЯ И ОШИБКИ (Светло-серые ромбы, Желтые экшены) =====
+    style CheckReady fill:#F1F5F9,stroke:#3B82F6,stroke-width:2px,color:#0F172A
+    style CheckSuccess fill:#F1F5F9,stroke:#3B82F6,stroke-width:2px,color:#0F172A
+    style CheckZero fill:#F1F5F9,stroke:#3B82F6,stroke-width:2px,color:#0F172A
+    
+    style MarkSkipped fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#92400E
+
+    %% ===== ЛИНИИ =====
+    linkStyle default stroke:#64748B,stroke-width:1.5px
+    linkStyle 5 stroke:#D97706,stroke-width:1.5px
+    linkStyle 9 stroke:#D97706,stroke-width:1.5px
 ```
 
 - **VRAM Protection:** Все узлы, требующие LLM, исполняются под глобальным `asyncio.Lock`, что предотвращает одновременную загрузку нескольких моделей в VRAM.
@@ -278,16 +475,53 @@ flowchart TD
 Детерминированный постпроцессор, работающий без LLM:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {
+  'lineColor': '#64748B',
+  'primaryColor': '#3B82F6',
+  'primaryTextColor': '#FFFFFF',
+  'primaryBorderColor': '#2563EB',
+  'secondaryColor': '#0D9488',
+  'tertiaryColor': '#0F172A',
+  'fontFamily': 'system-ui, -apple-system, sans-serif',
+  'fontSize': '14px',
+  'edgeLabelBackground': '#F8FAFC'
+}}}%%
+
 flowchart LR
-    A[LLM output] --> B[AST parse]
-    B --> C{Синтаксис валиден?}
-    C -- Да --> D[Применить правила]
-    C -- Нет --> E[_fix_syntax_error]
+    A["LLM output"] --> B["AST parse"]
+    B --> C{"Синтаксис валиден?"}
+    
+    C -- Да --> D["Применить правила"]
+    C -- Нет --> E["_fix_syntax_error"]
+    
     E --> D
-    D --> F[AST re-parse]
-    F --> G{Валиден?}
-    G -- Да --> H[Вернуть исправленный код]
-    G -- Нет --> I[Вернуть оригинал с warning]
+    
+    D --> F["AST re-parse"]
+    F --> G{"Валиден?"}
+    
+    G -- Да --> H["Вернуть исправленный код"]
+    G -- Нет --> I["Вернуть оригинал с warning"]
+
+    %% ===== СЕРОЕ (Базовые операции) =====
+    style A fill:#475569,stroke:#334155,stroke-width:2px,color:#FFFFFF
+    style B fill:#64748B,stroke:#475569,stroke-width:2px,color:#FFFFFF
+    style F fill:#64748B,stroke:#475569,stroke-width:2px,color:#FFFFFF
+
+    %% ===== УСЛОВИЯ =====
+    style C fill:#F1F5F9,stroke:#3B82F6,stroke-width:2px,color:#0F172A
+    style G fill:#F1F5F9,stroke:#3B82F6,stroke-width:2px,color:#0F172A
+
+    %% ===== ЖЕЛТОЕ (Ошибки и предупреждения) =====
+    style E fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#92400E
+    style I fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#92400E
+
+    %% ===== БИРЮЗОВОЕ (Ремонт) =====
+    style D fill:#0D9488,stroke:#0F766E,stroke-width:2px,color:#FFFFFF
+
+    %% ===== СИНЕЕ (Успех) =====
+    style H fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
+
+    linkStyle default stroke:#64748B,stroke-width:1.5px
 ```
 
 **10 встроенных правил:**
@@ -366,56 +600,78 @@ flowchart LR
 ## 9. Поток выполнения запроса (End-to-End)
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {
+  'actorBkg': 'transparent',            %% Прозрачный фон (подстраивается под тему)
+  'actorBorder': '#64748B',             %% Аккуратная серая рамка
+  'actorTextColor': '#334155',          %% Темно-серый текст (читается везде)
+  'actorLineColor': '#CBD5E1',          %% Линии жизни (приглушенные)
+  'signalColor': '#475569',             %% Прямые стрелки
+  'signalTextColor': '#1E293B',         %% Текст прямых стрелок
+  'returnSignalColor': '#2563EB',       %% Яркий синий для возврата
+  'returnSignalTextColor': '#1D4ED8',   %% Текст возврата
+  'noteBkgColor': '#F1F5F9',            %% Фон заметок (с alpha для темной темы)
+  'noteBorderColor': '#93C5FD',         %% Аккуратная синяя рамка заметок
+  'noteTextColor': '#1E40AF',           %% Текст заметок
+  'labelBoxBkgColor': '#EFF6FF',
+  'labelBoxBorderColor': '#60A5FA',
+  'labelTextColor': '#1E3A8A',
+  'loopTextColor': '#475569',
+  'activationBkgColor': 'transparent',  %% Прозрачный фон активации
+  'activationBorderColor': '#94A3B8',   %% Рамка активации
+  'fontFamily': 'system-ui, -apple-system, sans-serif',
+  'fontSize': '14px'
+}}}%%
+
 sequenceDiagram
+    autonumber
+    
     participant U as User
-    participant MM as MetaOvermind (Python)
+    participant B as MessageBus (Rust)
     participant MR as MetaOvermind (Rust)
+    participant MM as MetaOvermind (Python)
     participant A as ArchitectAgent
     participant G as GraphExecutor
     participant C as MicroCoder
     participant R as CodeRepairAgent
     participant V as ValidatorSwarm
     participant L as LlamaCppEngine
-    participant B as MessageBus (Rust)
 
     U->>B: Goal + DNA (gRPC/CLI)
     B->>MR: Message {to: "meta_overmind_v1"}
     MR->>MM: PythonProcessManager.execute_task()
-    MM->>MM: _is_complex(goal)?
+    
+    Note over MM: Проверка сложности запроса
     
     alt Сложный запрос
         MM->>A: design_architecture(goal, context)
         A->>L: LLM call (architect model)
-        L-->>A: JSON response
-        A->>A: robust_json_parse() + _repair_modules()
-        A->>A: _break_cycles_in_graph()
-        A-->>MM: ArchitectureResult
-        MM->>MM: _build_graph_from_architecture()
+        L-->>A: <i>JSON response</i>
+        Note over A: <i>robust_json_parse() + _repair_modules() + _break_cycles()</i>
+        A-->>MM: <i>ArchitectureResult</i>
+        MM->>MM: <i>_build_graph_from_architecture()</i>
     else Простой запрос
-        MM->>MM: _linear_fallback()
+        MM->>MM: <i>_linear_fallback()</i>
     end
     
-    MM-->>MR: ExecutionGraph
+    MM-->>MR: <i>ExecutionGraph</i>
     MR->>B: Message {to: "graph_executor"}
     B->>G: execute_graph(ExecutionGraph)
     
-    loop Пока есть готовые узлы
-        G->>G: in_degree_map → ready_queue
-        par CPU-узлы (asyncio.gather)
+    loop <i>Пока есть готовые узлы (in_degree = 0)</i>
+        par CPU-узлы (<i>asyncio.gather</i>)
             G->>V: validate(code)
-            G->>CA: check_architecture(graph)
-        and LLM-узлы (serial, asyncio.Lock)
+        and LLM-узлы (<i>serial, asyncio.Lock</i>)
             G->>C: generate_module(spec)
             C->>L: LLM call (coder_llm model)
-            L-->>C: code
+            L-->>C: <i>code</i>
             G->>R: repair(code)
-            R->>R: AST parse → rule matching → apply fixes
-            R-->>G: repaired_code
+            Note over R: <i>AST parse → rule matching → apply fixes</i>
+            R-->>G: <i>repaired_code</i>
         end
-        G->>G: Обновить in_degree, найти новые готовые узлы
+        Note over G: <i>Обновить in_degree, найти новые готовые узлы</i>
     end
     
-    G-->>B: graph_results
+    G-->>B: <i>graph_results</i>
     B->>MR: Response
     MR-->>U: финальный артефакт
 ```
@@ -444,6 +700,4 @@ Krait — это гибридная мультиагентная система,
 
 Гибридная реализация `MetaOvermind` позволяет сочетать гарантированную доставку и таймауты Rust с когнитивной гибкостью Python/LLM. Три уровня агентов (L0-исполнители, L2-специалисты, L3-стратеги) образуют полный конвейер: от цели пользователя до синтаксически валидного многомодульного проекта с перекрёстными импортами и проверенной архитектурой.
 
----
 
-*Архитектурная документация. Основана на исходном коде krait-core и krait-python.*
