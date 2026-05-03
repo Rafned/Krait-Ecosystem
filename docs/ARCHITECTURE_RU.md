@@ -25,7 +25,7 @@ Krait — это не монолитный генератор кода, а ра�
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {
-  'lineColor': '#64748B',
+  'lineColor': '#94A3B8',
   'primaryColor': '#3B82F6',
   'primaryTextColor': '#FFFFFF',
   'primaryBorderColor': '#2563EB',
@@ -33,41 +33,32 @@ Krait — это не монолитный генератор кода, а ра�
   'tertiaryColor': '#0F172A',
   'fontFamily': 'system-ui, -apple-system, sans-serif',
   'fontSize': '14px',
-  'edgeLabelBackground': '#F8FAFC'
+  'edgeLabelBackground': '#0F172A'
 }}}%%
 
 flowchart TD
-    %% ===== ВНЕШНИЙ КОНТЕКСТ (Стадион) =====
+    %% ===== ВНЕШНИЙ КОНТЕКСТ =====
     User(["Пользователь / CLI / gRPC"]) --> Dispatcher
 
-    %% ===== RUST CORE (Синий) =====
+    %% ===== RUST CORE =====
     subgraph RustCore ["Rust Core (krait-core)"]
-        %% I/O Границы (Параллелограммы)
         Dispatcher[/"gRPC Server / CLI / JSONL Dispatcher"\]
         BE[/"BackgroundExecutor<br/>idle detection, rate limiting"\]
         Rep[/"Replication<br/>DNA + Snapshots + Graph"\]
         
-        %% Инфраструктурные слои (Шестиугольники)
         Bus{{"Message Bus<br/>16 шардов, 4 приоритета<br/>Backpressure, DLQ, TTL"}}
         Sec{{"Security Layer<br/>RBAC + PQ Crypto + Validation"}}
         
-        %% Внутренние процессы (Прямоугольники)
         Runtime["CognitiveRuntime<br/>DI + Lifecycle + Self-Healing"]
         TQ["TaskQueue<br/>sled, priority index, retries"]
     end
 
-    %% ===== PYTHON COGNITIVE LAYER (Бирюзовый) =====
+    %% ===== PYTHON COGNITIVE LAYER =====
     subgraph PyLayer ["Python Cognitive Layer"]
-        %% I/O Границы
         PyMgr[/"PythonProcessManager"\]
-        
-        %% Точка старта графа (Стадион)
         Graph(["GraphExecutor<br/>DAG Runner"])
-        
-        %% Инфраструктурный слой (Шестиугольник)
         LLM{{"LLM Infrastructure<br/>Registry / VRAM Pool"}}
         
-        %% Агенты (Прямоугольники)
         PyMeta["MetaOvermind<br/>L3 Orchestrator"]
         Arch["ArchitectAgent<br/>L2 Architecture"]
 
@@ -86,7 +77,7 @@ flowchart TD
         end
     end
 
-    %% === ПОТОКИ ДАННЫХ ===
+    %% --- Основные потоки Rust ---
     Dispatcher --> Bus
     Bus --> Sec
     Sec --> Runtime
@@ -95,8 +86,10 @@ flowchart TD
     Rep --> Runtime
     Runtime --> Bus
 
+    %% --- Системная граница ---
     Bus ==>|"gRPC + JSONL"| PyMgr
 
+    %% --- Основные потоки Python ---
     PyMgr --> PyMeta
     PyMeta --> Arch
     PyMeta --> Graph
@@ -108,7 +101,7 @@ flowchart TD
     Graph --> SC
     Graph --> CA
     
-    %% Добавил обратные связи от валидаторов/безопасности
+    %% --- Обратные связи ---
     VR --> Graph
     CA --> Graph
     SC --> Graph
@@ -121,50 +114,42 @@ flowchart TD
     LLM --> SC
 
     %% ==========================================
-    %% ===== ЕДИНЫЙ ДИЗАЙН-СТИЛЬ (CSS) ==========
+    %% ===== ЕДИНЫЙ ДИЗАЙН-СТИЛЬ (DARK MODE) ===
     %% ==========================================
 
-    %% --- ВНЕШНИЙ КОНТЕКСТ ---
-    style User fill:#F1F5F9,stroke:#94A3B8,stroke-width:1.5px,color:#475569
+    %% --- Внешний контекст ---
+    classDef extCtx fill:#334155,stroke:#94A3B8,stroke-width:1.5px,color:#F8FAFC
+    class User extCtx
 
-    %% --- КОНТЕЙНЕРЫ СЛОЕВ ---
-    style RustCore fill:#EFF6FF,stroke:#3B82F6,stroke-width:2px,color:#0F172A
-    style PyLayer fill:#F0FDFA,stroke:#0D9488,stroke-width:2px,color:#0F172A
-    style Generation fill:#CCFBF1,stroke:#99F6E4,stroke-width:1px,color:#0F172A
-    style Validation fill:#CCFBF1,stroke:#99F6E4,stroke-width:1px,color:#0F172A
-    style Security fill:#CCFBF1,stroke:#99F6E4,stroke-width:1px,color:#0F172A
+    %% --- Контейнеры (Сабграфы) ---
+    classDef subRust fill:#1E293B,stroke:#3B82F6,stroke-width:2px,color:#F8FAFC
+    classDef subPy fill:#1E293B,stroke:#0D9488,stroke-width:2px,color:#F8FAFC
+    classDef subPyInner fill:#112021,stroke:#2DD4BF,stroke-width:1px,color:#F8FAFC
+    class RustCore subRust
+    class PyLayer subPy
+    class Generation,Validation,Security subPyInner
 
-    %% --- СИНЕЕ (Rust Core) ---
-    %% Шестиугольники (Инфраструктура)
-    style Bus fill:#1D4ED8,stroke:#1E40AF,stroke-width:2px,color:#FFFFFF
-    style Sec fill:#1D4ED8,stroke:#1E40AF,stroke-width:2px,color:#FFFFFF
-    %% Параллелограммы (I/O)
-    style Dispatcher fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
-    style BE fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
-    style Rep fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
-    %% Прямоугольники (Процессы)
-    style Runtime fill:#3B82F6,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
-    style TQ fill:#3B82F6,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
+    %% --- Синее (Rust Core) ---
+    classDef rustInfra fill:#1D4ED8,stroke:#1E40AF,stroke-width:2px,color:#FFFFFF
+    classDef rustIO fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
+    classDef rustProc fill:#3B82F6,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
+    class Bus,Sec rustInfra
+    class Dispatcher,BE,Rep rustIO
+    class Runtime,TQ rustProc
 
-    %% --- БИРЮЗОВОЕ (Python Layer) ---
-    %% Стадионы (Главные точки потока)
-    style Graph fill:#0F766E,stroke:#115E59,stroke-width:2.5px,color:#FFFFFF
-    %% Шестиугольники (Инфраструктура)
-    style LLM fill:#0F766E,stroke:#115E59,stroke-width:2px,color:#FFFFFF
-    %% Параллелограммы (I/O)
-    style PyMgr fill:#0D9488,stroke:#0F766E,stroke-width:2px,color:#FFFFFF
-    %% Прямоугольники (Агенты)
-    style PyMeta fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
-    style Arch fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
-    style MC fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
-    style VR fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
-    style SC fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
-    style CA fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
-    style CRA fill:#2DD4BF,stroke:#14B8A6,stroke-width:2px,color:#115E59
+    %% --- Бирюзовое (Python Layer) ---
+    classDef pyMain fill:#0F766E,stroke:#115E59,stroke-width:2.5px,color:#FFFFFF
+    classDef pyIO fill:#0D9488,stroke:#0F766E,stroke-width:2px,color:#FFFFFF
+    classDef pyAgent fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+    classDef pyRepair fill:#2DD4BF,stroke:#14B8A6,stroke-width:2px,color:#042f2e
+    class Graph,LLM pyMain
+    class PyMgr pyIO
+    class PyMeta,Arch,MC,VR,SC,CA pyAgent
+    class CRA pyRepair
 
-    %% --- ЛИНИИ СВЯЗИ ---
-    linkStyle default stroke:#64748B,stroke-width:1.5px
-    %% Выделение системной границы (Rust -> Python) — индекс 8
+    %% --- Стилизация линий ---
+    %% Индексы: 8 - это граница Bus ==> PyMgr
+    linkStyle default stroke:#94A3B8,stroke-width:1.5px
     linkStyle 8 stroke:#3B82F6,stroke-width:2.5px
 ```
 
@@ -180,7 +165,7 @@ flowchart TD
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {
-  'lineColor': '#64748B',
+  'lineColor': '#94A3B8',
   'primaryColor': '#3B82F6',
   'primaryTextColor': '#FFFFFF',
   'primaryBorderColor': '#2563EB',
@@ -188,11 +173,10 @@ flowchart TD
   'tertiaryColor': '#0F172A',
   'fontFamily': 'system-ui, -apple-system, sans-serif',
   'fontSize': '14px',
-  'edgeLabelBackground': '#F8FAFC'
+  'edgeLabelBackground': '#0F172A'
 }}}%%
 
 flowchart TD
-    %% ===== L3 УРОВЕНЬ (Синий - Оркестрация) =====
     subgraph L3 ["L3: Оркестрация и стратегия"]
         MO["MetaOvermind<br/>Гибридный оркестратор"]
         CA_L3["ContextArchitect<br/>Страж целостности"]
@@ -200,7 +184,6 @@ flowchart TD
         QO["QuantumOracle<br/>Квантовые алгоритмы"]
     end
 
-    %% ===== L2 УРОВЕНЬ (Бирюзовый - Спец. агенты) =====
     subgraph L2 ["L2: Специализированные агенты"]
         AA["ArchitectAgent<br/>Архитектурный дизайн"]
         SCA["SecureCodeAgent<br/>Гибридный аудит"]
@@ -209,14 +192,13 @@ flowchart TD
         VS["ValidatorSwarm<br/>Многоуровневая валидация"]
     end
 
-    %% ===== L0 УРОВЕНЬ (Серый - Исполнители) =====
     subgraph L0 ["L0: Исполнители"]
         MC_L0["MicroCoder<br/>Генератор кода"]
         CRA_L0["CodeRepairAgent<br/>Детерминированный ремонт"]
         GE["GraphExecutor<br/>DAG-раннер"]
     end
 
-    %% ===== ОСНОВНЫЕ ПОТОКИ =====
+    %% --- Основные потоки ---
     MO -->|"планирует"| AA
     MO -->|"делегирует"| GE
     
@@ -228,35 +210,43 @@ flowchart TD
     MC_L0 -->|"результат"| CRA_L0
     CRA_L0 -->|"исправленный код"| VS
 
-    %% ===== ВСПОМОГАТЕЛЬНЫЕ ПОТОКИ =====
+    %% --- Вспомогательные потоки ---
     AA -.->|"использует"| IFM
     SCA -.->|"использует"| UA
     QO -.->|"используется"| BQI
 
-    %% ===== ЕДИНЫЙ СТИЛЬ (Синий) =====
-    style L3 fill:#F8FAFC,stroke:#3B82F6,stroke-width:2px,color:#0F172A
-    style MO fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
-    style CA_L3 fill:#3B82F6,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
-    style BQI fill:#3B82F6,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
-    style QO fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
+    %% --- Классы для L3 (Синий) ---
+    classDef l3Primary fill:#2563EB,stroke:#1D4ED8,stroke-width:2px,color:#FFFFFF
+    classDef l3Secondary fill:#3B82F6,stroke:#2563EB,stroke-width:2px,color:#FFFFFF
+    classDef l3Sub fill:#1E293B,stroke:#3B82F6,stroke-width:2px,color:#F8FAFC
 
-    %% ===== ЕДИНЫЙ СТИЛЬ (Бирюзовый) =====
-    style L2 fill:#F0FDFA,stroke:#0D9488,stroke-width:2px,color:#0F172A
-    style AA fill:#0D9488,stroke:#0F766E,stroke-width:2px,color:#FFFFFF
-    style SCA fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
-    style IFM fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
-    style UA fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
-    style VS fill:#0D9488,stroke:#0F766E,stroke-width:2px,color:#FFFFFF
+    %% --- Классы для L2 (Бирюзовый) ---
+    classDef l2Primary fill:#0D9488,stroke:#0F766E,stroke-width:2px,color:#FFFFFF
+    classDef l2Secondary fill:#14B8A6,stroke:#0D9488,stroke-width:2px,color:#FFFFFF
+    classDef l2Sub fill:#1E293B,stroke:#0D9488,stroke-width:2px,color:#F8FAFC
 
-    %% ===== ЕДИНЫЙ СТИЛЬ (Серый/Slate) =====
-    style L0 fill:#F8FAFC,stroke:#64748B,stroke-width:2px,color:#0F172A
-    style MC_L0 fill:#475569,stroke:#334155,stroke-width:2px,color:#FFFFFF
-    style CRA_L0 fill:#64748B,stroke:#475569,stroke-width:2px,color:#FFFFFF
-    style GE fill:#475569,stroke:#334155,stroke-width:2px,color:#FFFFFF
+    %% --- Классы для L0 (Серый/Slate) ---
+    classDef l0Primary fill:#475569,stroke:#334155,stroke-width:2px,color:#FFFFFF
+    classDef l0Secondary fill:#64748B,stroke:#475569,stroke-width:2px,color:#FFFFFF
+    classDef l0Sub fill:#1E293B,stroke:#64748B,stroke-width:2px,color:#F8FAFC
 
-    %% ===== ЛИНИИ =====
-    linkStyle default stroke:#64748B,stroke-width:1.5px
-    linkStyle 7,8,9 stroke:#94A3B8,stroke-width:1.5px,stroke-dasharray:5 4
+    %% --- Применение классов к нодам ---
+    class MO,QO l3Primary
+    class CA_L3,BQI l3Secondary
+    class L3 l3Sub
+
+    class AA,VS l2Primary
+    class SCA,IFM,UA l2Secondary
+    class L2 l2Sub
+
+    class MC_L0,GE l0Primary
+    class CRA_L0 l0Secondary
+    class L0 l0Sub
+
+    %% --- Стилизация линий ---
+    %% Индексы: 0:MO->AA, 1:MO->GE, 2:GE->MC, 3:GE->VS, 4:GE->CA, 5:GE->SCA, 6:MC->CRA, 7:CRA->VS, 8:AA->IFM, 9:SCA->UA, 10:QO->BQI
+    linkStyle 0,1,2,3,4,5,6,7 stroke:#94A3B8,stroke-width:1.5px
+    linkStyle 8,9,10 stroke:#64748B,stroke-width:1.5px,stroke-dasharray:5 4
 ```
 
 **Принцип взаимодействия:** агенты общаются через шину сообщений (Rust), напрямую не вызывая друг друга. `MetaOvermind` и `GraphExecutor` — единственные компоненты, которые координируют выполнение; остальные агенты — stateless-обработчики, получающие контекст через параметры вызова.
