@@ -128,11 +128,27 @@ This repository serves as a reference architecture. To implement similar systems
 2.  Examine the agent interaction patterns in `/specs`
 3.  Use the benchmark results as performance targets for your implementation
 
-## License
+---
 
-- **Documentation** (this repository): Licensed under CC BY-NC-ND 4.0
-- **Source code** (Rust/Python): All rights reserved. Not open source.
+⚖️ License & Intellectual Property
 
-You may read, share, and reference the architecture for non-commercial purposes.
-You may not build commercial products based on this architecture, 
-or distribute modified versions of this documentation.
+This project consists of proprietary software and restricted architectural documentation.
+
+    Source Code (Rust/Python): 🔒 All rights reserved. NOT open source. Viewing, copying, or usage of the code is strictly prohibited without a commercial license.
+    Documentation & Architecture: 📄 Licensed under CC BY-NC-ND 4.0.
+
+ Critical Restrictions on Architecture
+
+While the documentation is publicly readable under CC BY-NC-ND, the specific architectural patterns, system topologies, and performance optimization strategies (including but not limited to the hybrid MetaOvermind implementation, VRAM eviction pools, and AST repair heuristics) are protected as trade secrets.
+
+You MAY:
+
+    Read and share this repository for non-commercial, educational purposes (with attribution).
+
+You MAY NOT:
+
+    Use this architecture to build commercial products or services.
+    Reimplement the described Krait patterns in your own commercial systems.
+    Distribute modified versions of these documents or diagrams.
+
+See the full LICENSE file for legal details.
