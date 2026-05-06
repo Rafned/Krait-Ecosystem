@@ -1,7 +1,7 @@
 > **⚠️ LICENSE NOTICE**  
-> This repository is **View Only**. You may read and study the architecture, but commercial use, reimplementation, or copying of code/patterns is strictly prohibited. See [LICENSE](./LICENSE.md) for full terms.
+> This repository is **View Only**. You may read and study the architecture, but commercial use, reimplementation, or copying of code/patterns is strictly prohibited. See [LICENSE](./LICENSE) for full terms.
 
-[![License: View Only](https://img.shields.io/badge/License-View%20Only-red.svg)](./LICENSE.)
+[![License: View Only](https://img.shields.io/badge/License-View%20Only-red.svg)](./LICENSE)
 
 # Krait-Ecosystem: Architecture for Cognitive Symbiosis
 
