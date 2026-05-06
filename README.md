@@ -9,6 +9,17 @@
 
 > **Note: This is an architectural overview and benchmark repository.** The core implementation remains private.
 
+⚖️ License & Intellectual Property
+
+🔒 Proprietary & View-Only. NOT Open Source.
+
+This repository is shared for educational and research purposes only. You may read and study the materials, but commercial use, reimplementation of patterns, or copying is strictly prohibited. 
+
+    ✅ Allowed: Reading, studying, and non-commercial sharing (with attribution).
+    🚫 Prohibited: Commercial use, copying code, reimplementing the described architectural patterns (including VRAM management, AST repair, sharded bus), or distributing modified versions of the documentation.
+
+See the LICENSE file for full legal details and commercial licensing options.
+
 ## 🧠 Philosophy
 
 Krait-Ecosystem moves beyond monolithic LLMs towards a society of specialized, collaborative agents. The system is built on principles of:
@@ -132,26 +143,3 @@ This repository serves as a reference architecture. To implement similar systems
 3.  Use the benchmark results as performance targets for your implementation
 
 ---
-
-⚖️ License & Intellectual Property
-
-This project consists of proprietary software and restricted architectural documentation.
-
-    Source Code (Rust/Python): 🔒 All rights reserved. NOT open source. Viewing, copying, or usage of the code is strictly prohibited without a commercial license.
-    Documentation & Architecture: 📄 Licensed under CC BY-NC-ND 4.0.
-
- Critical Restrictions on Architecture
-
-While the documentation is publicly readable under CC BY-NC-ND, the specific architectural patterns, system topologies, and performance optimization strategies (including but not limited to the hybrid MetaOvermind implementation, VRAM eviction pools, and AST repair heuristics) are protected as trade secrets.
-
-You MAY:
-
-    Read and share this repository for non-commercial, educational purposes (with attribution).
-
-You MAY NOT:
-
-    Use this architecture to build commercial products or services.
-    Reimplement the described Krait patterns in your own commercial systems.
-    Distribute modified versions of these documents or diagrams.
-
-See the full LICENSE file for legal details.
