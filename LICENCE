@@ -1,0 +1,31 @@
+KRAIT-ECOSYSTEM SOFTWARE AND DOCUMENTATION LICENSE
+
+Copyright (c) [Ваше Имя или Название компании] . All rights reserved.
+
+This repository contains both proprietary software source code and restricted documentation. 
+By accessing this repository, you agree to the following terms:
+
+1. SOURCE CODE RESTRICTIONS
+The Rust and Python source code, including but not limited to the 'krait-core' crate and 
+Python cognitive layer, is PROPRIETARY and CONFIDENTIAL.
+You may NOT: view, copy, modify, compile, distribute, or use the source code in any way, 
+except as explicitly granted by the copyright holder in a separate written agreement.
+
+2. DOCUMENTATION LICENSE
+The documentation files (Markdown, Mermaid diagrams, images) are licensed under the 
+Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International License (CC BY-NC-ND 4.0).
+You may view and share the documentation for non-commercial purposes with attribution.
+You may NOT use this documentation for commercial purposes, nor create modified versions of it.
+To view a copy of this license, visit: https://creativecommons.org/licenses/by-nc-nd/4.0/
+
+3. TRADE SECRETS AND PERFORMANCE DATA
+Benchmark results, architectural decisions, and system topologies described in the 
+documentation constitute valuable trade secrets. Extracting, lifting, or reimplementing 
+the architectural patterns described herein for commercial gain is strictly prohibited 
+and may result in legal action.
+
+4. NO GRANT OF PATENT OR TRADEMARK RIGHTS
+This license does not grant you any rights to use the trade names, trademarks, 
+service marks, or product names of the Licensor.
+
+THE SOFTWARE AND DOCUMENTATION ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
