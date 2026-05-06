@@ -727,3 +727,37 @@ sequenceDiagram
 Krait is a hybrid multi-agent system where the Rust core takes on infrastructure reliability (communications, persistence, security, scheduling), and the Python layer takes on cognitive logic (architectural design, code generation, validation). The key engineering emphasis is placed on managing limited GPU resources (VRAM eviction, serialization of LLM nodes), guaranteeing the syntactic validity of the output (deterministic repair + multi-level validation), and controlled orchestration of complex workflows (DAG with dependencies and fallback chains).
 
 The hybrid implementation of `MetaOvermind` allows combining Rust's guaranteed delivery and timeouts with the cognitive flexibility of Python/LLM. The three levels of agents (L0-executors, L2-specialists, L3-strategists) form a complete pipeline: from the user's goal to a syntactically valid multi-module project with cross-imports and a verified architecture.
+
+
+---
+
+### 12. Quantum Components Implementation Status
+
+**Regarding quantum computing, to avoid any misunderstanding: these are primarily simulations. The architecture includes provisions for future QPU integration.**
+
+---
+
+### 🟡 Working (Simulation / MVP)
+- `QuantumOracle` — VQE/QAOA on PennyLane simulator (GPU/CPU)
+- `BizQuantumIntegrator` — LLM-based business requirement translation into technical solutions, Knowledge Graph integration, compliance stubs
+
+### 🔴 Stubs / Requires Further Work
+- `QuantumOracle`: Grover (limited to 10 qubits), IBM/IonQ/Rigetti adapters (awaiting API tokens)
+- `BizQuantumIntegrator`: quantum Monte Carlo (uses simulator), quantum speedup (heuristic)
+- `GDPRChecker` / `PCIChecker` — API ready, business logic not implemented
+
+### 📌 Note
+Quantum algorithms run **only in simulation mode** on CPU/GPU.  
+Real QPU integration (IBM, IonQ, Rigetti) is planned for the future, but requires:
+1. Obtaining API tokens
+2. Testing on actual quantum hardware
+3. Adaptation to real qubit noise
+
+The current implementation is suitable for:
+- Research prototypes
+- Architecture demonstrations
+- Learning and experiments
+
+---
+
+*The project is under active development. Component status is updated as implementation progresses.*
