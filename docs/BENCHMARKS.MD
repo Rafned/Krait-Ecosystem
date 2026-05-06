@@ -41,7 +41,7 @@ The **Tuned** configuration applies kernel parameters `mitigations=off`, `perfor
 
 | Component | Version | Notes |
 |-----------|---------|-------|
-| OS | Ubuntu 24.04 | - |
+| OS | Ubuntu 24.10 | - |
 | Kernel | Linux 6.11 | Baseline: stock parameters; Tuned: see below |
 | Rust | 1.89 | `bench` profile |
 | Criterion | 0.5 | Statistical benchmarking |
