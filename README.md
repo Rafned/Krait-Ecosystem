@@ -1,3 +1,5 @@
+[![License: CC BY-NC-ND 4.0](https://img.shields.io/badge/License-CC%20BY--NC--ND%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+
 # Krait-Ecosystem: Architecture for Cognitive Symbiosis
 
 **A high-performance, secure, and scalable framework for building multi-agent cognitive systems.** This repository documents the architecture and performance characteristics of a novel approach to AI agent orchestration.
@@ -126,6 +128,11 @@ This repository serves as a reference architecture. To implement similar systems
 2.  Examine the agent interaction patterns in `/specs`
 3.  Use the benchmark results as performance targets for your implementation
 
-## 📄 License
+## License
 
-Architectural documentation is licensed under CC-BY-4.0. All implementation rights reserved.
+- **Documentation** (this repository): Licensed under CC BY-NC-ND 4.0
+- **Source code** (Rust/Python): All rights reserved. Not open source.
+
+You may read, share, and reference the architecture for non-commercial purposes.
+You may not build commercial products based on this architecture, 
+or distribute modified versions of this documentation.
