@@ -1,6 +1,6 @@
 
 
-# Krait Architecture: Hybrid Runtime for Multi-Agent Code Generation
+
 # Krait Architecture: Hybrid Runtime for Multi-Agent Code Generation
 
 **Architectural document. Version: engineering review based on source code.**
