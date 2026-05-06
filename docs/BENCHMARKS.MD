@@ -144,7 +144,7 @@ xychart-beta
 
 ---
 
-## Cognitive Agents Performance
+## Agents(Actors) Performance
 
 ### SecureCodeAgent (Rust Fast Path)
 
@@ -300,4 +300,4 @@ Do **not** use `taskset` on the whole process; let the scheduler exploit the iso
 
 ---
 
-*Benchmarks performed on AMD Ryzen 5700X, Ubuntu 24.04, Linux 6.11, Rust 1.89, Criterion 0.5 Tuned kernel parameters as described. All measurements represent end‑to‑end operations including Tokio runtime overhead.*
+*Benchmarks performed on AMD Ryzen 5700X, Ubuntu 24.10, Linux 6.11, Rust 1.89, Criterion 0.5 Tuned kernel parameters as described. All measurements represent end‑to‑end operations including Tokio runtime overhead.*
